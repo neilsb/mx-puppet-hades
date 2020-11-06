@@ -1,0 +1,7 @@
+node_modules
+build
+bridge.log.*
+hades-registration.yaml
+.*-audit.json
+database.db
+config.yaml
