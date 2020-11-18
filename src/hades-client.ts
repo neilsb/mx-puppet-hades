@@ -236,7 +236,7 @@ export class HadesClient extends Event
         var match = urlRegex.exec(out)
         if(match != null) {
             msg.action = "url"
-            msg.text = "[URL] " + match[2];
+            msg.text = match[2];
             msg.user = match[1];
             return msg;
         }
