@@ -198,6 +198,9 @@ export class HadesClient extends Event
         // Try and split by user and action
         var myRegexp = /^(>?>?)(\S*) (.*): (.*)/g;
 
+        // URLs
+        var urlRegex = /\[URL\] ([^:]*): (.*)/g
+
         var dsayRegEx = /says to (.*)/g;
 
         var echoRegEx = /^(\(.+\)|-) (.*)/g;
@@ -229,8 +232,16 @@ export class HadesClient extends Event
         }
 
 
-        var match = myRegexp.exec(out);
+        // Handle URLs
+        var match = urlRegex.exec(out)
+        if(match != null) {
+            msg.action = "url"
+            msg.text = "[URL] " + match[2];
+            msg.user = match[1];
+            return msg;
+        }
 
+        var match = myRegexp.exec(out);
 
         if(match != null) {
             msg.private = match[1].length > 0;
@@ -262,7 +273,7 @@ export class HadesClient extends Event
             msg.text = match[2];
 
             if(match[1] != "-") {
-                msg.user == match[1];
+                msg.user = match[1];
             } 
 
             return msg;
