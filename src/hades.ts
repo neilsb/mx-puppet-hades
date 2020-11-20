@@ -33,6 +33,8 @@ export class Hades {
 		private puppet: PuppetBridge,
 	) { }
 
+	private showSystemMessages: boolean = false;
+
 	//
 	// generate parameters for Matrix to map user / room
 	public getSendParams(puppetId: number, msg: HadesMessage): IReceiveParams {
@@ -108,6 +110,10 @@ export class Hades {
 		delete this.puppets[puppetId]; // and finally delete our local copy
 	}
 
+    private delay(ms: number) {
+        return new Promise( resolve => setTimeout(resolve, ms) );
+    }
+
 	public async handleMatrixMessage(room: IRemoteRoom, data: IMessageEvent, event: any) {
 		// this is called every time we receive a message from matrix and need to
 		// forward it to the remote protocol.
@@ -140,6 +146,10 @@ export class Hades {
 
 			if(message.startsWith('/')) {
 				p.client.send(message.replace(/^\//,"."));
+				this.showSystemMessages = true;
+				this.delay(20000).then(()=>{
+					this.showSystemMessages = false;
+				});
 				return;
 			}
 
@@ -218,7 +228,8 @@ export class Hades {
 	}
 	
 	public async handleHadesMessage(puppetId: number, msg: HadesMessage) {
-		if (msg == null  || msg.ignore) {
+
+		if (msg == null  || (msg.ignore && !this.showSystemMessages)) {
 			return; // nothing to do
 		}
 
@@ -242,6 +253,17 @@ export class Hades {
 		}
 
 		if(msg.sysMessage || msg.action == "sysMessage") {
+			if(!this.showSystemMessages) {			
+				return;
+			}
+
+			const opts = {
+				body: "```\n" + msg.text + "\n```",
+				formattedBody: "<pre>" + msg.text + "</pre>",
+				emote: false,
+			};
+			await this.puppet.sendMessage(params, opts);
+
 			return;
 		}
 

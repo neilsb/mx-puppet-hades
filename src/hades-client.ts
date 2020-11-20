@@ -75,12 +75,13 @@ export class HadesClient extends Event
         const res = this.processLine(data);
 
         // Ignore unprocessed lines
-        if(res == null || res.ignore) return;
+        if(res == null) return;
 
         const logEntry = {
             timestamp: new Date(),
             result: res,
-            raw: data
+            raw: data,
+            clean: stripAnsi(data).trim()
         }
 
         // Log data to file for debugging
@@ -328,12 +329,14 @@ export class HadesClient extends Event
                     return msg;
                 }
 
-
                  console.log("Error: " + out  + "  (Length: " + out.length + ")");
             }
 
             msg.action = "Unknown";
             msg.ignore = true;
+            msg.user = "system";
+            msg.sysMessage = true;
+            msg.text = out;
             return msg;
 
     }
