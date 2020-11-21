@@ -34,11 +34,28 @@ export class Hades {
 	) { }
 
 	private showSystemMessages: boolean = false;
+	private displayNames: Array<string> = [];
 
 	//
 	// generate parameters for Matrix to map user / room
 	public getSendParams(puppetId: number, msg: HadesMessage): IReceiveParams {
+		
 		// for rooms and users, ids are local to current Matrix Puppet - so no need to be globally unique
+		const userId: string = msg.user.toLocaleLowerCase();
+
+		// Try to handle changes in case of Username (Damn you hades)
+
+		// If we don't have one recorded, record the current one
+		if(this.displayNames[userId] == undefined) {
+			this.displayNames[userId] = msg.user;
+			console.log("Setting user name to " + msg.user);
+		} else if(this.displayNames[userId].toLocaleLowerCase() != userId && 
+			   this.displayNames[userId] != msg.user) {
+			// If we have one, but the new one is not all lowercase then update it
+			this.displayNames[userId] = msg.user;
+			console.log("Changing User name to " + msg.user);
+		}
+
 		return {
 			room: {
 				// if it's a private message, use a room of the users name, otherwise main "hades" room
@@ -49,8 +66,8 @@ export class Hades {
 			},
 			user: {
 				// For userId to lowercase, can leave display name as how Hades capatalises it
-				userId: msg.user.toLocaleLowerCase(),	
-				name: msg.user,
+				userId: userId,	
+				name: this.displayNames[userId],
 				puppetId, 
 			},
 		};
