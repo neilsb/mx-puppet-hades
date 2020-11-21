@@ -30,6 +30,7 @@ export class HadesClient extends Event
     private loggedIn: boolean = false;
 
     private currentUsers: Array<string> = [];
+    private userInIdle: boolean = false;
 
 	constructor(private params: any) {
         super();
@@ -149,6 +150,13 @@ export class HadesClient extends Event
     public send(data: any):void {
         if(this.client === undefined) return;
 
+        // Check if user is in the Idle first
+        if(this.userInIdle == true) {
+            // Move to Styx before talking
+            this.client.write(".go styx");
+            this.userInIdle = false;
+        }
+
         console.log("Sending: ", data);
         this.client.write(data);
     }
@@ -211,6 +219,8 @@ export class HadesClient extends Event
         var statusChangeRegex = /^-> (.*) (is away|returns)/g;
 
         var emoteRegex = /^(>?>?)([a-zA-Z]*) (.*)/g;
+
+        var movedToIdle = /^(You are in the idle).*/g
 
         let details = {}
 
@@ -297,6 +307,16 @@ export class HadesClient extends Event
             return msg;
         }
 
+        //
+        // Moved to Idle
+        match = movedToIdle.exec(out);
+        if(match != null) {
+            this.userInIdle = true;
+            msg.action = "Moved to Idle";
+            msg.text = "";
+            msg.sysMessage = true;
+            return msg;
+        }
 
         //
         // System Message
