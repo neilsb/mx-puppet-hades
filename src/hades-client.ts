@@ -97,6 +97,7 @@ export class HadesClient extends Event
           || (res.user == "system" && res.action == "sysMessage" && res.text == "You can't talk here")) {
             console.log("In Idle - moving back to styx");
             this.send(".go styx");
+            this.userInIdle = false;
         } 
 
         // Ignore if you were the creating user
@@ -337,6 +338,12 @@ export class HadesClient extends Event
             msg.emote = true;
             msg.text = match[3];
         
+            // Handle special case of "fades into the background"  (Moves to Idle)
+            if(!msg.private && msg.text === "fades into the background") {
+                msg.sysMessage = true;
+
+            }
+
             return msg;
         }
 

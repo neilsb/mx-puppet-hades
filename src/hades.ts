@@ -8,6 +8,8 @@ import {
 	IFileEvent,
 	Log,
 	IRetList,
+	IPresenceEvent,
+	MatrixPresence,
 } from "mx-puppet-bridge";
 import { HadesClient, HadesMessage } from "./hades-client";
 
@@ -151,6 +153,7 @@ export class Hades {
 		// Check for Directed Message
 		if(data.formattedBody?.startsWith("<a href=\"https://matrix.to")) {
 			directed = true;
+			message = message.replace("(Away):", "");		// Handle users that are AFK
 			message = message.replace(":", "");
 		}
 
@@ -251,21 +254,25 @@ export class Hades {
 		}
 
 		const params = await this.getSendParams(puppetId, msg);
-//		const client = this.puppets[puppetId].client;
 
-		// Ignore status changes
-		if(msg.action == "returns" || msg.action == "away") {
-
-			// Precense not available yet
+		// Ignore own actions
+		if((msg.action == "says" || msg.action == "emote") && msg.user == "You") {
 			return;
+		}
+
+		// AFK changes
+		if(msg.action == "returns" || msg.action == "away") {
 
 			// Currently looping when set to "online"
 			const user: IRemoteUser = {
-				userId : msg["user"].toLocaleLowerCase(), 
-				puppetId,
-			}
-			console.log("Updating precesnse....");
-			await this.puppet.setUserPresence(user, msg["action"] == "away" ? "offline" : "online");
+				userId: msg["user"].toLocaleLowerCase(), 
+				name: msg.user + (msg.action == "away" ? " (Away)" : ""),
+				puppetId
+			};
+			
+			await this.puppet.updateUser(user)
+			await this.puppet.setUserStatus(user, msg.action == "away" ? "away" : "online");
+
 			return;
 		}
 
@@ -284,11 +291,14 @@ export class Hades {
 			return;
 		}
 
-		// Ignore what you say
-		if((msg.action == "says" || msg.action == "emote") && msg.user == "You") {
-			return;
+		// Mark user as Online
+		const user: IRemoteUser = {
+			userId : msg["user"].toLocaleLowerCase(), 
+			puppetId,
 		}
+		this.puppet.setUserPresence(user, "online");
 
+		
 		// Look for mentions and add in "proper" name for notifications
 		const p = this.puppets[puppetId];
 		if(p != null && p.data["matrixName"] != null && p.data["matrixName"].length > 0) {

@@ -5,3 +5,4 @@ hades-registration.yaml
 .*-audit.json
 database.db
 config.yaml
+log.*.json
