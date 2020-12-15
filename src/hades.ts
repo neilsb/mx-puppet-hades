@@ -12,6 +12,7 @@ import {
 	MatrixPresence,
 } from "mx-puppet-bridge";
 import { HadesClient, HadesMessage } from "./hades-client";
+var he = require('he');
 
 // here we create our log instance
 const log = new Log("HadesPuppet:hades");
@@ -283,7 +284,7 @@ export class Hades {
 
 			const opts = {
 				body: "```\n" + msg.text + "\n```",
-				formattedBody: "<pre>" + msg.text + "</pre>",
+				formattedBody: "<pre>" + he.encode(msg.text) + "</pre>",
 				emote: false,
 			};
 			await this.puppet.sendMessage(params, opts);
@@ -311,7 +312,7 @@ export class Hades {
 
 		const opts = {
 			body: (msg.directed ? `@${msg.directedTarget}: ` : "" ) + msg.text,
-			formattedBody: (msg.directed ? `@${msg.directedTarget}: ` : "" ) + msg.text,
+			formattedBody: (msg.directed ? `@${msg.directedTarget}: ` : "" ) + he.encode(msg.text),
 			emote: msg.emote,
 		};
 		await this.puppet.sendMessage(params, opts);
