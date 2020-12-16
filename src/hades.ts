@@ -166,7 +166,7 @@ export class Hades {
 			}
 
 			if(message.startsWith('/')) {
-				p.client.send(message.replace(/^\//,"."));
+				p.client.send(message.replace(/^\/+/,"."));
 				this.showSystemMessages = true;
 				this.delay(20000).then(()=>{
 					this.showSystemMessages = false;
