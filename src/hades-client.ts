@@ -101,7 +101,7 @@ export class HadesClient extends Event
         } 
 
         // Ignore if you were the creating user
-        if(res.user == "You" || res.user == this.option.username) return;
+        if(res.user == "You" || res.user.toLowerCase() == this.option.username.toLowerCase()) return;
 
         this.emit("message", res);
 
