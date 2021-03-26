@@ -86,11 +86,11 @@ export class HadesClient extends Event
         }
 
         // Log data to file for debugging
-        // fs.appendFile('data.json', JSON.stringify(logEntry) + "\n", (err) => {
-        //     if (err) {
-        //         throw err;
-        //     }
-        // });
+      fs.appendFile('log.' + new Date().toISOString().substring(0, 10) + ".json", JSON.stringify(logEntry) + "\n", (err) => {
+            if (err) {
+                throw err;
+            }
+        });
 
         // Check if you were moved to the idle and go back to the styx
         if((res.user == "You" && res.action == "emote" && res.text == "are in the idle") 
@@ -101,7 +101,7 @@ export class HadesClient extends Event
         } 
 
         // Ignore if you were the creating user
-        if(res.user == "You" || res.user == this.option.username) return;
+        if(res.user == "You" || res.user.toLowerCase() == this.option.username.toLowerCase()) return;
 
         this.emit("message", res);
 
@@ -262,7 +262,12 @@ export class HadesClient extends Event
             msg.text = match[4];
 
             // Dsay
+            console.log("Original Match Data: ", out);
+            console.log("Original Match Results: ", JSON.stringify(match));
             var dsayMatch = dsayRegEx.exec(match[3]);
+
+            console.log("Dsay Match Results: ", JSON.stringify(dsayMatch));
+
             if(dsayMatch != null) {
                 msg.action = "dsay";
                 msg.directed = true;
