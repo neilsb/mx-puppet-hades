@@ -12,6 +12,7 @@ import {
 	MatrixPresence,
 } from "mx-puppet-bridge";
 import { HadesClient, HadesMessage } from "./hades-client";
+import axios from 'axios'
 var he = require('he');
 
 // here we create our log instance
@@ -300,6 +301,20 @@ export class Hades {
 		this.puppet.setUserPresence(user, "online");
 
 		
+		if(msg.action == "url") {
+			
+			// Perform http head request to see if it's an image
+			const url = msg.text.trim();
+			await axios.get(url)
+				.then(data => { 
+					if(data.headers['content-type'] !== undefined && data.headers['content-type'].startsWith("image"))
+					{
+						this.puppet.sendFileDetect(params, msg.text);
+					}
+				})
+				.catch(err => { console.log(err); });
+		}
+
 		// Look for mentions and add in "proper" name for notifications
 		const p = this.puppets[puppetId];
 		if(p != null && p.data["matrixName"] != null && p.data["matrixName"].length > 0) {
