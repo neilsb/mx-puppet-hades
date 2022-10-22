@@ -237,6 +237,8 @@ export class HadesClient extends Event
 
         var emoteRegex = /^(>?>?)([a-zA-Z]*) (.*)/g;
 
+        var shoutRegex = /^(!!)([a-zA-Z]*) (.*)/g;
+
         var movedToIdle = /^(You are in the idle).*/g
 
         let details = {}
@@ -266,6 +268,18 @@ export class HadesClient extends Event
             msg.action = "url"
             msg.text = match[2];
             msg.user = match[1];
+            return msg;
+        }
+
+        //
+        // Shout
+        match = shoutRegex.exec(out);
+        if(match != null) {
+            console.log("Got a shout!");
+            msg.user = match[2];
+            msg.action = "shouts";
+            msg.emote = true;
+            msg.text = "(Shouting) " + match[3];
             return msg;
         }
 
@@ -350,7 +364,8 @@ export class HadesClient extends Event
             return msg;
         }
 
-        
+        //
+        // Emote
         match = emoteRegex.exec(out);
         if(match != null) {
             msg.private = match[1].length > 0;
