@@ -317,7 +317,7 @@ export class Hades {
 
 		// Look for mentions and add in "proper" name for notifications
 		const p = this.puppets[puppetId];
-		if(p != null && p.data["matrixName"] != null && p.data["matrixName"].length > 0) {
+		if(p != null && p.data["matrixName"] != null && p.data["matrixName"].length > 0 && msg.text) {
 			msg.text = msg.text.replace(new RegExp("(\\b" + p.data["username"] + "\\b)", "gi"), "$& (" + p.data["matrixName"] + ")");
 		}
 

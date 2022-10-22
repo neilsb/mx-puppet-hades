@@ -65,12 +65,27 @@ export class HadesClient extends Event
         }
     }
 
+    private partialMessage: any = "";
+
     private dataReceived(data: any): void {
 
         if(!this.loggedIn) {
             this.handleLogin(data);
             return;
         }
+
+        // If this is 1448 bytes, wait for next part of message
+        if(data.length == 1448) {
+            this.partialMessage += data;
+            return;
+        }
+
+
+        if(this.partialMessage.length > 0) {
+            data = this.partialMessage + data;
+            this.partialMessage = "";
+        }
+
 
         // Process given line
         const res = this.processLine(data);
@@ -81,6 +96,7 @@ export class HadesClient extends Event
         const logEntry = {
             timestamp: new Date(),
             result: res,
+            rawLength: data.length,
             raw: data,
             clean: stripAnsi(data).trim()
         }
