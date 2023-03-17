@@ -176,14 +176,15 @@ export class HadesClient extends Event
     public send(data: any):void {
         if(this.client === undefined) return;
 
-        // Replace Emojis with old talker smilies
-        data = data.replace(/🙂/g, ":)")
-                    .replace(/☹️/g, ":(")
-                    .replace(/😐️/g, ":|")
-                    .replace(/😉/g, ";)")
-                    .replace(/😲/g, ":o")
-                    .replace(/😛/g, ":p")
-                    .replace(/🐮/g, "}:8");
+        // Replace smilies with emojis
+        data = (data + " ").replace(/\:\)/g, "🙂")
+            .replace(/\:\(/g, "☹️")
+            .replace(/\:\|/g, "😐️")
+            .replace(/\;\)/g, "😉")
+            .replace(/\:o/g, "😲")
+            .replace(/\:\/[^\/]+/g, "😕")
+            .replace(/\:p/g, "😛")
+            .replace(/\}\:8/g, "🐮").trim();
 
         // Check if user is in the Idle first
         if(this.userInIdle == true) {
