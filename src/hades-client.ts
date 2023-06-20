@@ -92,7 +92,7 @@ export class HadesClient extends Event
             .replace(/\:\|/g, "😐️")
             .replace(/\;\)/g, "😉")
             .replace(/\:o/g, "😲")
-            .replace(/\:\//g, "😕")
+            .replace(/\:\/(?!\/)/g, "😕")
             .replace(/\:p/g, "😛")
             .replace(/\}\:8/g, "🐮");
 
